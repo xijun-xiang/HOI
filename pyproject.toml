@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hoi-multitask"
+version = "0.1.0"
+description = "A concise, task-conditioned SAC research artifact for humanoid object interaction."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Xijun Xiang" }]
+dependencies = [
+  "gymnasium>=0.29,<1.1",
+  "numpy>=1.24",
+  "stable-baselines3>=2.3,<2.5",
+  "torch>=2.2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+hoi-train = "hoi.train:main"
+hoi-analyze = "hoi.analysis:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.setuptools.packages.find]
+include = ["hoi*"]

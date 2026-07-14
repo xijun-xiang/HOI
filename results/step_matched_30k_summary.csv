@@ -1,0 +1,5 @@
+configuration,architecture,task_identity,mean_return,raw_delta_vs_vanilla,normalised_delta_vs_vanilla,non_package_mean_task_delta
+vanilla_mlp_sac_30k,MLP,no,-1130.631,0.000,0.00000,0.000
+task_id_mlp_sac_30k,MLP,one-hot,-1131.392,-0.761,0.03328,2.367
+reference_transformer_sac_30k,Transformer,one-hot,-1143.532,-12.901,0.04049,3.424
+task_token_transformer_sac_30k,Transformer,task token,-1140.645,-10.014,0.07611,6.088

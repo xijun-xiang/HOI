@@ -1,0 +1,19 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+# Training and evaluation artefacts
+artifacts/
+wandb/
+videos/
+*.zip
+*.pt
+*.pth
+*.npy
+*.npz
