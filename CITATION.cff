@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite the associated dissertation and HumanoidBench."
+title: "HOI: Task-Conditioned SAC for Humanoid Object Interaction"
+type: software
+authors:
+  - family-names: Xiang
+    given-names: Xijun
+license: MIT
+repository-code: "https://github.com/xijun-xiang/HOI"
+abstract: "A compact research artifact for task-conditioned SAC and task-scale-aware evaluation on multi-task humanoid object interaction."
