@@ -8,8 +8,13 @@ parts that are useful to inspect and reproduce:
 - a shared-policy SAC training loop for heterogeneous humanoid tasks;
 - explicit task-aligned observations and task-ID controls;
 - a task-token Transformer feature extractor;
+- an optional task-residual critic, keeping shared value learning and
+  task-specific corrections separately inspectable;
+- static or reward-EMA-adaptive task-balanced RL losses;
+- an auditable demonstration-to-RL path (BC pretraining, action/KL anchors,
+  conservative actor scheduling); and
 - deterministic, task-wise evaluation with recorded seeds; and
-- raw and task-scale-aware result analysis.
+- raw, task-scale-aware, and numeric-`info` result analysis.
 
 It intentionally excludes private writing, large experiment directories,
 checkpoints, W&B logs, and external demonstration datasets. See
@@ -78,17 +83,45 @@ For the complete method, evaluation protocol, and reported 30k result:
 - [Method](docs/method.md)
 - [Evaluation protocol](docs/evaluation.md)
 - [Results and claim boundaries](docs/results.md)
+- [Core methods and their status](docs/highlights.md)
+- [Public demonstration data schema](docs/demonstrations.md)
+
+## Run a method ablation
+
+Every research addition is opt-in. For example, this run enables the
+task-residual critic and adaptive RL weighting; it does not turn on
+demonstration terms:
+
+```bash
+hoi-train --tasks "$TASKS" --out-dir artifacts/residual-adaptive \
+  --task-head-critic --task-head-mode bilinear \
+  --rl-weight-mode adaptive --rl-task-weights 1,1,1,0.2,1,1 \
+  --steps 30000 --seed 0 --rich-eval
+```
+
+To evaluate IL-to-RL retention, add `--demo-npz PATH` plus a declared
+`--bc-pretrain-steps`, `--actor-bc-coefficient`, action-anchor or KL-anchor
+coefficient. The dataset schema and all schedule controls are documented in
+[docs/demonstrations.md](docs/demonstrations.md). Treat this as a separate
+ablation: the committed 30k results below do **not** claim that the optional
+methods were evaluated unless their run manifest says so.
 
 ## Repository layout
 
 ```text
 hoi/
+  algorithms.py    # task weighting, BC→RL retention, conservative updates
+  balancing.py     # static/adaptive task weights
   conditioning.py  # observation padding and task IDs
+  data.py          # validated public demo data and balanced mini-batches
   models.py        # task-token Transformer feature extractor
+  policies.py      # task-residual critic/policy
   train.py         # shared-policy SAC runner
   evaluation.py    # deterministic, task-wise evaluator
+  rich_evaluation.py # numeric environment-proxy aggregation
   analysis.py      # raw and task-normalized comparisons
 docs/              # method, protocol, and transparent results
+experiments/       # step-matched experiment ledger
 results/           # small, human-readable aggregate table only
 tests/             # dependency-light component tests
 ```

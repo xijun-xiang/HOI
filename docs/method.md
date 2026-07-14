@@ -21,6 +21,48 @@ The implementation deliberately keeps the interface explicit: each task is
 wrapped independently, all actions must share the same shape, and the final
 policy input is always a flat `float32` vector.
 
+## Task-conditioned critic residual
+
+`TaskHeadSACPolicy` retains the ordinary pair of SAC Q-functions and adds a
+small residual head to each. Each head receives the critic's state/action
+representation and the final task one-hot suffix:
+
+`Q_i(s, a, t) = Q_i_shared(s, a) + lambda * Delta_i(s, a, t)`.
+
+The residual can be an MLP or a low-rank bilinear interaction. `lambda` is
+explicit (`--critic-residual-scale`, default `0.1`), so the shared critic is
+still the primary estimator. This is an ablation-friendly conditioning choice,
+not a claim that every task needs its own independent critic.
+
+## Task-balanced RL losses
+
+`TaskWeightController` reads only the final one-hot task suffix. In static
+mode it applies a declared prior. In adaptive mode it keeps a reward EMA per
+task, maps lower reward to higher difficulty through a temperature-controlled
+softmax, then mixes that distribution with the prior. The resulting sample
+weights are normalized to have batch mean one before they weight both critic
+squared error and actor SAC loss.
+
+This mechanism addresses loss-scale domination; it does not make returns
+comparable. Raw and task-normalized evaluation remain separate diagnostics.
+
+## Conservative IL-to-RL transfer
+
+The optional demonstration path accepts only a simple public NPZ schema. It
+supports deterministic action-regression pretraining and three explicitly
+logged RL-time retention terms:
+
+1. action MSE on sampled demonstrations;
+2. action MSE to a frozen actor snapshot; and
+3. KL from the current diagonal-Gaussian actor to that snapshot.
+
+The regularization scale can warm up, decay linearly to a floor, or remain
+constant. Actor updates can be delayed, initially frozen, and reverted when
+the post-update distributional KL exceeds `--actor-max-update-kl`. Critic and
+entropy updates continue on every gradient step. These are stabilisation
+controls to be tested in matched ablations, not defaults hidden in the
+baseline.
+
 ## Why task-scale-aware evaluation
 
 Raw mean return is a necessary benchmark score, but one task with a much larger
