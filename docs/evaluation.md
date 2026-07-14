@@ -10,3 +10,16 @@ control. Report raw return first, then task-normalized deltas, per-task results,
 and any environment-specific behavioural proxies separately. A proxy such as
 door-handle proximity must not be presented as task completion unless opening
 and passage metrics confirm it.
+
+## Rich proxy audit
+
+Pass `--rich-eval` to additionally save `rich_evaluation` in `summary.json`.
+For every numeric scalar in an environment's `info` dictionary, the evaluator
+records the episode-final, mean, minimum, and maximum value, then averages
+those statistics task-wise. Strings, arrays, and nested values are excluded
+rather than silently coerced.
+
+Metric names and semantics remain the environment's own. In particular, a
+positive `opening`, proximity, or contact proxy is evidence about that proxy;
+it is not automatically renamed to `success`. Report an explicit completion
+metric separately when the environment provides one.
